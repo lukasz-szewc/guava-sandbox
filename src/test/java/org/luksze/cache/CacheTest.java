@@ -33,7 +33,7 @@ public class CacheTest {
     @Test
     public void valueWillBeReplaced() throws Exception {
         //given
-        cache.put("key", "intialValue");
+        cache.put("key", "initialValue");
 
         //when
         cache.put("key", "overrideValue");
