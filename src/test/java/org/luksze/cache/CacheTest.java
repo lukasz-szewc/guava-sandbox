@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class CacheTest {
 
     private Cache<String, Object> cache;
@@ -17,12 +19,29 @@ public class CacheTest {
 
     @Test
     public void assertNewCacheIsEmpty() throws Exception {
-        Assert.assertEquals(cache.size(), 0);
+        assertEquals(cache.size(), 0);
     }
 
     @Test
     public void elementCanBeAddedIntoCache() throws Exception {
+        //when
         cache.put("firstKey", new Object());
-        Assert.assertEquals(cache.size(), 1);
+
+        //then
+        assertEquals(cache.size(), 1);
     }
+
+    @Test
+    public void valueWillBeReplaced() throws Exception {
+        //given
+        cache.put("key", "intialValue");
+
+        //when
+        cache.put("key", "overrideValue");
+
+        //then
+        assertEquals(cache.size(), 1);
+        assertEquals("overrideValue", cache.getIfPresent("key"));
+    }
+
 }
