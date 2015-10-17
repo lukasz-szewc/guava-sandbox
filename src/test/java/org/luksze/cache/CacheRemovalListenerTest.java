@@ -30,7 +30,7 @@ public class CacheRemovalListenerTest {
         cache.put("secondKey", "secondValue");
 
         //then
-        Assert.assertTrue(removalListener.wasNotifiedAboutRemovalOfInitialElement());
+        Assert.assertTrue(removalListener.initialValueWasEvicted());
         Assert.assertEquals(1, cache.size());
     }
 
@@ -47,13 +47,19 @@ public class CacheRemovalListenerTest {
             list.add(notification);
         }
 
-        public boolean wasNotifiedAboutRemovalOfInitialElement() {
+        public boolean initialValueWasEvicted() {
             for (RemovalNotification<String, Object> notification : list) {
-                if (INITIAL_KEY.equals(notification.getKey()) && INITIAL_VALUE.equals(notification.getValue())) {
+                if (wasEvicted(notification)) {
                     return true;
                 }
             }
             return false;
+        }
+
+        private boolean wasEvicted(RemovalNotification<String, Object> notification) {
+            return INITIAL_KEY.equals(notification.getKey()) &&
+                    INITIAL_VALUE.equals(notification.getValue()) &&
+                        notification.wasEvicted();
         }
     }
 }
