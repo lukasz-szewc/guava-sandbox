@@ -43,4 +43,17 @@ public class CacheTest {
         assertEquals("overrideValue", cache.getIfPresent("key"));
     }
 
+    @Test
+    public void cacheCanBeEvicted() throws Exception {
+        //given
+        cache.put("firstKey", "firstValue");
+        cache.put("secondKey", "secondValue");
+
+        //when
+        cache.invalidateAll();
+
+        //then
+        assertEquals(cache.size(), 0);
+    }
+
 }
