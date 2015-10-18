@@ -44,7 +44,7 @@ public class CacheTest {
     }
 
     @Test
-    public void cacheCanBeEvicted() throws Exception {
+    public void cacheContentCanBeInvalidated() throws Exception {
         //given
         cache.put("firstKey", "firstValue");
         cache.put("secondKey", "secondValue");
