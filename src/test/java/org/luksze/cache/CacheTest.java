@@ -2,10 +2,12 @@ package org.luksze.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class CacheTest {
 
@@ -54,6 +56,21 @@ public class CacheTest {
 
         //then
         assertEquals(cache.size(), 0);
+    }
+
+    @Test
+    public void specificKeyCanBeInvalidated() throws Exception {
+        //given
+        cache.put("firstKey", "firstValue");
+        cache.put("secondKey", "secondValue");
+
+        //when
+        cache.invalidate("firstKey");
+
+        //then
+        assertEquals(cache.size(), 1);
+        assertNull(cache.getIfPresent("firstKey"));
+        assertEquals("secondValue", cache.getIfPresent("secondKey"));
     }
 
 }
