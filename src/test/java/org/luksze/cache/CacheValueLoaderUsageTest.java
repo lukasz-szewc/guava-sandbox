@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.util.concurrent.Callable;
 
+import static com.google.common.cache.CacheBuilder.newBuilder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -17,7 +18,7 @@ public class CacheValueLoaderUsageTest {
 
     @Before
     public void setUp() throws Exception {
-        cache = CacheBuilder.newBuilder().maximumSize(1).build();
+        cache = newBuilder().build();
     }
 
     @Test
