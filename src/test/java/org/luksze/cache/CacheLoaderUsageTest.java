@@ -15,17 +15,17 @@ public class CacheLoaderUsageTest {
     public void callableIsCalledForNotExistingKey() throws Exception {
         //given
         Cache<Object, Object> cache = CacheBuilder.newBuilder().maximumSize(1).build();
-        MyCallable valueLoader = new MyCallable();
+        ValueLoader valueLoader = new ValueLoader();
 
         //when
         Object returnedValue = cache.get("notExistentKey", valueLoader);
 
         //then
         assertTrue(valueLoader.hit);
-        assertEquals(MyCallable.RETURNED_VALUE, returnedValue);
+        assertEquals(ValueLoader.RETURNED_VALUE, returnedValue);
     }
 
-    private static class MyCallable implements Callable<Object> {
+    private static class ValueLoader implements Callable<Object> {
         public static final String RETURNED_VALUE = "returnedValue";
         private boolean hit = false;
 
