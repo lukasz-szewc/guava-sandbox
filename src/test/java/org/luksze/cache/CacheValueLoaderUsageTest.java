@@ -1,7 +1,6 @@
 package org.luksze.cache;
 
 import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
