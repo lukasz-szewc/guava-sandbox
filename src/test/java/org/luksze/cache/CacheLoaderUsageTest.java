@@ -17,13 +17,12 @@ public class CacheLoaderUsageTest {
         //given
         StringCacheLoader loader = new StringCacheLoader();
         LoadingCache<String, Object> loadingCache = newBuilder().build(loader);
-        String notExistentKey = "notExistentKey";
 
         //when
-        Object returnedValue = loadingCache.getUnchecked(notExistentKey);
+        Object returnedValue = loadingCache.getUnchecked("notExistentKey");
 
         //then
-        assertTrue(loader.hasAskedForKey(notExistentKey));
+        assertTrue(loader.hasAskedForKey("notExistentKey"));
         assertEquals(StringCacheLoader.VALUE, returnedValue);
     }
 
