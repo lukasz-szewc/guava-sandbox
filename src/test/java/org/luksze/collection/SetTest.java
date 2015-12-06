@@ -23,4 +23,18 @@ public class SetTest {
         assertThat(union.containsAll(firstSet), equalTo(TRUE));
         assertThat(union.containsAll(secondSet), equalTo(TRUE));
     }
+
+    @Test
+    public void canIntersectTwoSets() throws Exception {
+        //given
+        ImmutableSet<String> firstSet = ImmutableSet.of("first", "second");
+        ImmutableSet<String> secondSet = ImmutableSet.of("second", "third");
+
+        //when
+        SetView<String> intersection = Sets.intersection(firstSet, secondSet);
+
+        //then
+        assertThat(intersection.contains("second"), equalTo(TRUE));
+        assertThat(intersection.size(), equalTo(1));
+    }
 }
