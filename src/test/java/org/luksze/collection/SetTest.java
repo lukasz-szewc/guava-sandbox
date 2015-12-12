@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import static java.lang.Boolean.TRUE;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SetTest {
@@ -20,8 +21,8 @@ public class SetTest {
         SetView<String> union = Sets.union(firstSet, secondSet);
 
         //then
-        assertThat(union.containsAll(firstSet), equalTo(TRUE));
-        assertThat(union.containsAll(secondSet), equalTo(TRUE));
+        assertThat(union.containsAll(firstSet), is(TRUE));
+        assertThat(union.containsAll(secondSet), is(TRUE));
     }
 
     @Test
@@ -34,7 +35,7 @@ public class SetTest {
         SetView<String> intersection = Sets.intersection(firstSet, secondSet);
 
         //then
-        assertThat(intersection.contains("second"), equalTo(TRUE));
+        assertThat(intersection.contains("second"), is(TRUE));
         assertThat(intersection.size(), equalTo(1));
     }
 }
