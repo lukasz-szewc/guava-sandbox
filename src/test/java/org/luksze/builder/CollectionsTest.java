@@ -29,7 +29,7 @@ public class CollectionsTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void name() throws Exception {
+    public void immutableListCreationTest() throws Exception {
         //given
         List<String> strings = Collections.of("something").immutableList();
 
