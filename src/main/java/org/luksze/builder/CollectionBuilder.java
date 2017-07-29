@@ -3,7 +3,9 @@ package org.luksze.builder;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class CollectionBuilder<T> {
     private final T firstElement;
@@ -20,6 +22,12 @@ public class CollectionBuilder<T> {
         ArrayList<T> ts = new ArrayList<>();
         ts.add(firstElement);
         return ts;
+    }
+
+    public Set<T> mutableSet() {
+        HashSet<T> set = new HashSet<>();
+        set.add(firstElement);
+        return set;
     }
 
 }
