@@ -3,6 +3,7 @@ package org.luksze.builder;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertEquals;
@@ -35,5 +36,18 @@ public class CollectionsTest {
 
         //when
         strings.add("any");
+    }
+
+    @Test
+    public void mutableSetCreationTest() throws Exception {
+        //given
+        Set<Integer> integers = Collections.of(1).mutableSet();
+
+        //when
+        integers.add(2);
+
+        //then
+        assertEquals(integers.size(), 2);
+        assertThat(integers, hasItems(1, 2));
     }
 }
