@@ -6,7 +6,7 @@
 
     <groupId>org.luksze</groupId>
     <artifactId>guava-sandbox</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -88,7 +88,7 @@
     <distributionManagement>
         <repository>
             <id>bintray-lukasz-szewc-releases</id>
-            <url>https://api.bintray.com/maven/lukasz-szewc/releases/guava-sandbox/</url>
+            <url>https://api.bintray.com/maven/lukasz-szewc/releases/guava-sandbox/;publish=1</url>
         </repository>
     </distributionManagement>
 
