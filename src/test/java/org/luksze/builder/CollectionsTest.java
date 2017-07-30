@@ -50,4 +50,13 @@ public class CollectionsTest {
         assertEquals(integers.size(), 2);
         assertThat(integers, hasItems(1, 2));
     }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void immutableSetCreationTest() throws Exception {
+        //given
+        Set<String> strings = Collections.of("something").immutableSet();
+
+        //when
+        strings.add("any");
+    }
 }
