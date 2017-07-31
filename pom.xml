@@ -86,6 +86,7 @@
                 <version>2.5.3</version>
                 <configuration>
                     <pushChanges>true</pushChanges>
+                    <useReleaseProfile>false</useReleaseProfile>
                 </configuration>
             </plugin>
             <plugin>
