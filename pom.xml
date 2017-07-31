@@ -4,7 +4,7 @@
 
     <groupId>org.luksze</groupId>
     <artifactId>guava-sandbox</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.8-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -106,7 +106,7 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/lukasz-szewc/guava-sandbox.git</developerConnection>
-        <tag>guava-sandbox-0.0.7</tag>
+        <tag>HEAD</tag>
   </scm>
 
 </project>
