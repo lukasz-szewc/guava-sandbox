@@ -101,7 +101,7 @@
     </distributionManagement>
 
     <scm>
-        <developerConnection>scm:git:https://github.com/lukasz-szewc/guava-sandbox</developerConnection>
+        <developerConnection>scm:git:https://github.com/lukasz-szewc/guava-sandbox.git</developerConnection>
     </scm>
 
 </project>
