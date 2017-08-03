@@ -87,6 +87,7 @@
                 <configuration>
                     <pushChanges>true</pushChanges>
                     <useReleaseProfile>false</useReleaseProfile>
+                    <preparationGoals>clean</preparationGoals>
                 </configuration>
             </plugin>
             <plugin>
