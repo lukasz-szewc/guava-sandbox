@@ -59,4 +59,14 @@ public class CollectionsTest {
         //when
         strings.add("any");
     }
+
+    @Test
+    public void immutableSetFromMoreThenOneElement() throws Exception {
+        //given
+        Set<String> strings = Collections.of("first", "second").immutableSet();
+
+        //then
+        assertEquals(strings.size(), 2);
+        assertThat(strings, hasItems("first", "second"));
+    }
 }
