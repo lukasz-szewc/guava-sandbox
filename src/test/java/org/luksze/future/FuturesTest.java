@@ -10,11 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.Integer.valueOf;
 import static java.util.Arrays.asList;
@@ -30,7 +30,7 @@ public class FuturesTest {
     }
 
     @Test(timeout = 10000)
-    public void canSendEventsViaEventBus() throws Exception {
+    public void computationResultsCanBePickedByInOrder() throws Exception {
         //given
         List<TimeConsumingTask> fromSlowestToFastestTasks = asList(
                 new TimeConsumingTask(3), new TimeConsumingTask(2), new TimeConsumingTask(1));
@@ -44,20 +44,37 @@ public class FuturesTest {
         assertEquals(valueOf(3), results.get(2));
     }
 
-    private List<Integer> taskAreSubmittedFromSlowestToFaster(
-            List<TimeConsumingTask> timeConsumingTasks) throws Exception {
-        final ArrayList<Integer> resultsInOrder = new ArrayList<>();
-        ArrayList<Future> futures = new ArrayList<>();
-        for (TimeConsumingTask task : timeConsumingTasks) {
-            ListenableFuture<Integer> future = service.submit(task);
-            Futures.addCallback(future, new IntegerFutureCallback(resultsInOrder));
-            futures.add(future);
-        }
+    @Test(timeout = 10000)
+    public void computationResultsCanBePickedByInOrderAndTransformed() throws Exception {
+        //given
+        List<TimeConsumingTask> fromSlowestToFastestTasks = asList(
+                new TimeConsumingTask(3), new TimeConsumingTask(2), new TimeConsumingTask(1));
 
-        for (Future future : futures) {
-            future.get(8000, TimeUnit.SECONDS);
-        }
-        return resultsInOrder;
+        //when
+        List<String> results = taskAreSubmittedAndTransformed(fromSlowestToFastestTasks);
+
+        //then
+        assertEquals("1", results.get(0));
+        assertEquals("2", results.get(1));
+        assertEquals("3", results.get(2));
+    }
+
+    private List<Integer> taskAreSubmittedFromSlowestToFaster(List<TimeConsumingTask> timeConsumingTasks) {
+        ResultInOrder<Integer> resultInOrder = new ResultInOrder<>();
+        timeConsumingTasks.stream().forEach(
+                task -> Futures.addCallback(service.submit(task), new IntegerFutureCallback<>(resultInOrder)));
+        return resultInOrder.results();
+    }
+
+    private List<String> taskAreSubmittedAndTransformed(List<TimeConsumingTask> timeConsumingTasks) {
+        ResultInOrder<String> resultInOrder = new ResultInOrder<>();
+        timeConsumingTasks.stream().forEach(
+                task -> {
+                    ListenableFuture<Integer> future = service.submit(task);
+                    ListenableFuture<String> transformedFuture = Futures.transform(future, Object::toString);
+                    Futures.addCallback(transformedFuture, new IntegerFutureCallback<>(resultInOrder));
+                });
+        return resultInOrder.results();
     }
 
     private static class TimeConsumingTask implements Callable<Integer> {
@@ -73,15 +90,15 @@ public class FuturesTest {
         }
     }
 
-    private static class IntegerFutureCallback implements FutureCallback<Integer> {
-        private final ArrayList<Integer> results;
+    private static class IntegerFutureCallback<T> implements FutureCallback<T> {
+        private final ResultInOrder<T> results;
 
-        public IntegerFutureCallback(ArrayList<Integer> results) {
+        public IntegerFutureCallback(ResultInOrder<T> results) {
             this.results = results;
         }
 
         @Override
-        public void onSuccess(Integer result) {
+        public void onSuccess(T result) {
             results.add(result);
         }
 
@@ -89,5 +106,35 @@ public class FuturesTest {
         public void onFailure(Throwable t) {
             Assert.fail();
         }
+    }
+
+    private static class ResultInOrder<T> {
+
+        private final CountDownLatch countDownLatch;
+        private final ArrayList<T> results;
+
+        public ResultInOrder() {
+            countDownLatch = new CountDownLatch(3);
+            results = new ArrayList<>(3);
+        }
+
+        public void add(T integer) {
+            results.add(integer);
+            countDownLatch.countDown();
+        }
+
+        public List<T> results() {
+            await();
+            return Collections.unmodifiableList(results);
+        }
+
+        private void await() {
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
     }
 }
