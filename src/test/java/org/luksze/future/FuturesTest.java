@@ -2,6 +2,7 @@ package org.luksze.future;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.Assert;
@@ -29,7 +30,7 @@ public class FuturesTest {
     }
 
     @Test(timeout = 10000)
-    public void canSendEventsViaEventBus() throws Exception {
+    public void computationResultsCanBePickedByInOrder() throws Exception {
         //given
         List<TimeConsumingTask> fromSlowestToFastestTasks = asList(
                 new TimeConsumingTask(3), new TimeConsumingTask(2), new TimeConsumingTask(1));
@@ -43,10 +44,36 @@ public class FuturesTest {
         assertEquals(valueOf(3), results.get(2));
     }
 
+    @Test(timeout = 10000)
+    public void computationResultsCanBePickedByInOrderAndTransformed() throws Exception {
+        //given
+        List<TimeConsumingTask> fromSlowestToFastestTasks = asList(
+                new TimeConsumingTask(3), new TimeConsumingTask(2), new TimeConsumingTask(1));
+
+        //when
+        List<String> results = taskAreSubmittedAndTransformed(fromSlowestToFastestTasks);
+
+        //then
+        assertEquals("1", results.get(0));
+        assertEquals("2", results.get(1));
+        assertEquals("3", results.get(2));
+    }
+
     private List<Integer> taskAreSubmittedFromSlowestToFaster(List<TimeConsumingTask> timeConsumingTasks) {
-        ResultInOrder resultInOrder = new ResultInOrder();
+        ResultInOrder<Integer> resultInOrder = new ResultInOrder<>();
         timeConsumingTasks.stream().forEach(
-                task -> Futures.addCallback(service.submit(task), new IntegerFutureCallback(resultInOrder)));
+                task -> Futures.addCallback(service.submit(task), new IntegerFutureCallback<>(resultInOrder)));
+        return resultInOrder.results();
+    }
+
+    private List<String> taskAreSubmittedAndTransformed(List<TimeConsumingTask> timeConsumingTasks) {
+        ResultInOrder<String> resultInOrder = new ResultInOrder<>();
+        timeConsumingTasks.stream().forEach(
+                task -> {
+                    ListenableFuture<Integer> future = service.submit(task);
+                    ListenableFuture<String> transformedFuture = Futures.transform(future, Object::toString);
+                    Futures.addCallback(transformedFuture, new IntegerFutureCallback<>(resultInOrder));
+                });
         return resultInOrder.results();
     }
 
@@ -63,15 +90,15 @@ public class FuturesTest {
         }
     }
 
-    private static class IntegerFutureCallback implements FutureCallback<Integer> {
-        private final ResultInOrder results;
+    private static class IntegerFutureCallback<T> implements FutureCallback<T> {
+        private final ResultInOrder<T> results;
 
-        public IntegerFutureCallback(ResultInOrder results) {
+        public IntegerFutureCallback(ResultInOrder<T> results) {
             this.results = results;
         }
 
         @Override
-        public void onSuccess(Integer result) {
+        public void onSuccess(T result) {
             results.add(result);
         }
 
@@ -81,22 +108,22 @@ public class FuturesTest {
         }
     }
 
-    private static class ResultInOrder {
+    private static class ResultInOrder<T> {
 
         private final CountDownLatch countDownLatch;
-        private final ArrayList<Integer> results;
+        private final ArrayList<T> results;
 
         public ResultInOrder() {
             countDownLatch = new CountDownLatch(3);
             results = new ArrayList<>(3);
         }
 
-        public void add(Integer integer) {
+        public void add(T integer) {
             results.add(integer);
             countDownLatch.countDown();
         }
 
-        public List<Integer> results() {
+        public List<T> results() {
             await();
             return Collections.unmodifiableList(results);
         }
