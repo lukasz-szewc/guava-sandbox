@@ -2,7 +2,6 @@ package org.luksze.future;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.Assert;
@@ -10,11 +9,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.Integer.valueOf;
 import static java.util.Arrays.asList;
@@ -44,20 +43,11 @@ public class FuturesTest {
         assertEquals(valueOf(3), results.get(2));
     }
 
-    private List<Integer> taskAreSubmittedFromSlowestToFaster(
-            List<TimeConsumingTask> timeConsumingTasks) throws Exception {
-        final ArrayList<Integer> resultsInOrder = new ArrayList<>();
-        ArrayList<Future> futures = new ArrayList<>();
-        for (TimeConsumingTask task : timeConsumingTasks) {
-            ListenableFuture<Integer> future = service.submit(task);
-            Futures.addCallback(future, new IntegerFutureCallback(resultsInOrder));
-            futures.add(future);
-        }
-
-        for (Future future : futures) {
-            future.get(8000, TimeUnit.SECONDS);
-        }
-        return resultsInOrder;
+    private List<Integer> taskAreSubmittedFromSlowestToFaster(List<TimeConsumingTask> timeConsumingTasks) {
+        ResultInOrder resultInOrder = new ResultInOrder();
+        timeConsumingTasks.stream().forEach(
+                task -> Futures.addCallback(service.submit(task), new IntegerFutureCallback(resultInOrder)));
+        return resultInOrder.results();
     }
 
     private static class TimeConsumingTask implements Callable<Integer> {
@@ -74,9 +64,9 @@ public class FuturesTest {
     }
 
     private static class IntegerFutureCallback implements FutureCallback<Integer> {
-        private final ArrayList<Integer> results;
+        private final ResultInOrder results;
 
-        public IntegerFutureCallback(ArrayList<Integer> results) {
+        public IntegerFutureCallback(ResultInOrder results) {
             this.results = results;
         }
 
@@ -89,5 +79,35 @@ public class FuturesTest {
         public void onFailure(Throwable t) {
             Assert.fail();
         }
+    }
+
+    private static class ResultInOrder {
+
+        private final CountDownLatch countDownLatch;
+        private final ArrayList<Integer> results;
+
+        public ResultInOrder() {
+            countDownLatch = new CountDownLatch(3);
+            results = new ArrayList<>(3);
+        }
+
+        public void add(Integer integer) {
+            results.add(integer);
+            countDownLatch.countDown();
+        }
+
+        public List<Integer> results() {
+            await();
+            return Collections.unmodifiableList(results);
+        }
+
+        private void await() {
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
     }
 }
