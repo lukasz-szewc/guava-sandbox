@@ -36,4 +36,8 @@ public class CollectionBuilder<T> {
         return set;
     }
 
+    public static <T> CollectionBuilder<T> of(T ... elements) {
+        return new CollectionBuilder<T>(elements);
+    }
+
 }
