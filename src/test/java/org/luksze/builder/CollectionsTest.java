@@ -14,7 +14,7 @@ public class CollectionsTest {
     @Test
     public void mutableListCreationTest() throws Exception {
         //given
-        List<String> strings = Collections.of("something").mutableList();
+        List<String> strings = CollectionBuilder.of("something").mutableList();
 
         //then
         assertEquals(strings.size(), 1);
@@ -32,7 +32,7 @@ public class CollectionsTest {
     @Test(expected = UnsupportedOperationException.class)
     public void immutableListCreationTest() throws Exception {
         //given
-        List<String> strings = Collections.of("something").immutableList();
+        List<String> strings = CollectionBuilder.of("something").immutableList();
 
         //when
         strings.add("any");
@@ -41,7 +41,7 @@ public class CollectionsTest {
     @Test
     public void mutableSetCreationTest() throws Exception {
         //given
-        Set<Integer> integers = Collections.of(1).mutableSet();
+        Set<Integer> integers = CollectionBuilder.of(1).mutableSet();
 
         //when
         integers.add(2);
@@ -54,7 +54,7 @@ public class CollectionsTest {
     @Test(expected = UnsupportedOperationException.class)
     public void immutableSetCreationTest() throws Exception {
         //given
-        Set<String> strings = Collections.of("something").immutableSet();
+        Set<String> strings = CollectionBuilder.of("something").immutableSet();
 
         //when
         strings.add("any");
@@ -63,7 +63,7 @@ public class CollectionsTest {
     @Test
     public void immutableSetFromMoreThenOneElement() throws Exception {
         //given
-        Set<String> strings = Collections.of("first", "second").immutableSet();
+        Set<String> strings = CollectionBuilder.of("first", "second").immutableSet();
 
         //then
         assertEquals(strings.size(), 2);

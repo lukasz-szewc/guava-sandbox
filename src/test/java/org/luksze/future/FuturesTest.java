@@ -85,7 +85,7 @@ public class FuturesTest {
         }
 
         public Integer call() throws Exception {
-            Thread.sleep((long) (number * 600));
+            Thread.sleep((long) (number * 100));
             return number;
         }
     }
